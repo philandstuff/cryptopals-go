@@ -1,5 +1,7 @@
 package cryptopals
 
+import "fmt"
+
 // in: a value in 6-bit range
 // out: the base64 representation of this value
 func bitsToBase64Char(n byte) byte {
@@ -21,21 +23,14 @@ func bitsToBase64Char(n byte) byte {
 	panic("out of range")
 }
 
-func hexByteToNybble(in byte) byte {
-	if in <= '9' {
-		return in - '0'
-	}
-	return in - 'a' + 10
+func HexDecode(in string) []byte {
+	var out []byte
+	fmt.Sscanf(in, "%x", &out)
+	return out
 }
 
-func HexDecode(in []byte) []byte {
-	out := make([]byte, len(in)/2)
-	for i := 0; i < len(in); i += 2 {
-		highNybble := hexByteToNybble(in[i])
-		lowNybble := hexByteToNybble(in[i+1])
-		out[i/2] = highNybble<<4 | lowNybble
-	}
-	return out
+func HexEncode(in []byte) string {
+	return fmt.Sprintf("%x", in)
 }
 
 func Base64Encode(in []byte) []byte {
@@ -51,5 +46,16 @@ func Base64Encode(in []byte) []byte {
 		}
 	}
 	// FIXME tmp might have 2 or 4 spare bits left to output
+	return out
+}
+
+// Challenge 2
+
+// assumes buf1 and buf2 are the same length
+func XorBufs(buf1, buf2 []byte) []byte {
+	out := make([]byte, len(buf1))
+	for i := 0; i < len(buf1); i += 1 {
+		out[i] = buf1[i] ^ buf2[i]
+	}
 	return out
 }
