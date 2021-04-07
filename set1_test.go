@@ -6,6 +6,7 @@ import (
 	"github.com/philandstuff/cryptopals-go"
 )
 
+// Challenge 1
 func TestHexToBase64(t *testing.T) {
 	decoded := cryptopals.HexDecode("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d")
 	base64 := cryptopals.Base64Encode(decoded)
@@ -14,6 +15,7 @@ func TestHexToBase64(t *testing.T) {
 	}
 }
 
+// Challenge 2
 func TestFixedXor(t *testing.T) {
 	buf1 := cryptopals.HexDecode("1c0111001f010100061a024b53535009181c")
 	buf2 := cryptopals.HexDecode("686974207468652062756c6c277320657965")
