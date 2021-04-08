@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/philandstuff/cryptopals-go"
 	"github.com/urfave/cli/v2"
@@ -37,6 +39,26 @@ func challenge3(c *cli.Context) error {
 	return nil
 }
 
+func challenge4(c *cli.Context) error {
+	scanner := bufio.NewScanner(os.Stdin)
+	var best_score float64
+	var best_decrypt []byte
+	best_line := 1
+	line := 1
+	for scanner.Scan() {
+		buf := cryptopals.HexDecode(scanner.Text())
+		decrypt, score := cryptopals.BestEnglishXorDecrypt(buf)
+		if score > best_score {
+			best_score = score
+			best_decrypt = decrypt
+			best_line = line
+		}
+		line++
+	}
+	fmt.Printf("%d, %f: %s\n", best_line, best_score, string(best_decrypt))
+	return nil
+}
+
 func set1() *cli.Command {
 	return &cli.Command{
 		Name: "set1",
@@ -55,6 +77,11 @@ func set1() *cli.Command {
 				Name:   "challenge3",
 				Usage:  "decrypt single-byte xor",
 				Action: challenge3,
+			},
+			{
+				Name:   "challenge4",
+				Usage:  "find an english single-byte xor from many, provided on stdin",
+				Action: challenge4,
 			},
 		},
 	}
