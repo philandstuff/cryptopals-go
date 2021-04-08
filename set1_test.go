@@ -7,6 +7,8 @@ import (
 	"github.com/philandstuff/cryptopals-go"
 )
 
+// Regression tests
+
 // Challenge 1
 func TestHexToBase64(t *testing.T) {
 	decoded := cryptopals.HexDecode("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d")
@@ -42,6 +44,8 @@ func TestDecryptFixedXor(t *testing.T) {
 		}
 	}
 	decrypt := cryptopals.XorBufs(buf, bytes.Repeat([]byte{best_byte}, size))
-	t.Log(string(decrypt))
-	t.FailNow()
+	// Spoiler!
+	if string(decrypt) != "Cooking MC's like a pound of bacon" {
+		t.Errorf("Actual %s did not match expected", string(decrypt))
+	}
 }
