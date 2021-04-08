@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 
 	"github.com/philandstuff/cryptopals-go"
@@ -33,18 +32,7 @@ func challenge2(c *cli.Context) error {
 func challenge3(c *cli.Context) error {
 	text := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	buf := cryptopals.HexDecode(text)
-	size := len(buf)
-	var best_byte byte
-	var best_match float64
-	for i := 0; i < 256; i++ {
-		decrypt_try := cryptopals.XorBufs(buf, bytes.Repeat([]byte{byte(i)}, size))
-		englishness := cryptopals.Englishness(decrypt_try)
-		if englishness > best_match {
-			best_byte = byte(i)
-			best_match = englishness
-		}
-	}
-	decrypt := cryptopals.XorBufs(buf, bytes.Repeat([]byte{best_byte}, size))
+	decrypt, _ := cryptopals.BestEnglishXorDecrypt(buf)
 	fmt.Println(string(decrypt))
 	return nil
 }
