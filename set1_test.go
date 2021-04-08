@@ -37,3 +37,12 @@ func TestDecryptFixedXor(t *testing.T) {
 		t.Errorf("Actual %s did not match expected", string(decrypt))
 	}
 }
+
+func TestHammingDistance(t *testing.T) {
+	buf1 := []byte("this is a test")
+	buf2 := []byte("wokka wokka!!!")
+	actualDistance := cryptopals.HammingDistance(buf1, buf2)
+	if actualDistance != 37 {
+		t.Errorf("Expected %d to be 37", actualDistance)
+	}
+}
