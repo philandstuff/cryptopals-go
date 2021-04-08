@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/philandstuff/cryptopals-go"
@@ -59,6 +61,20 @@ func challenge4(c *cli.Context) error {
 	return nil
 }
 
+func challenge5(c *cli.Context) error {
+	key := c.String("key")
+	text, _ := ioutil.ReadAll(os.Stdin)
+	keystream := bytes.Repeat([]byte(key), (len(text)/len(key))+1)
+	xored := cryptopals.XorBufs(text, keystream)
+	actual := cryptopals.HexEncode(xored)
+	fmt.Println(actual)
+	if actual == "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f" || // hack for trailing newline, can't be bothered to sort it out
+		actual == "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f4f" {
+		fmt.Println("Bingo!")
+	}
+	return nil
+}
+
 func set1() *cli.Command {
 	return &cli.Command{
 		Name: "set1",
@@ -82,6 +98,18 @@ func set1() *cli.Command {
 				Name:   "challenge4",
 				Usage:  "find an english single-byte xor from many, provided on stdin",
 				Action: challenge4,
+			},
+			{
+				Name:  "challenge5",
+				Usage: "repeating-key XOR",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "key",
+						Value: "ICE",
+						Usage: "Key to use for XOR",
+					},
+				},
+				Action: challenge5,
 			},
 		},
 	}
