@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/philandstuff/cryptopals-go"
@@ -37,6 +40,35 @@ func helpers() *cli.Command {
 						}
 					}
 					fmt.Println(string(buf))
+					return nil
+				},
+			},
+			{
+				Name: "english-score",
+				Action: func(c *cli.Context) error {
+					buf, _ := ioutil.ReadAll(os.Stdin)
+					score := cryptopals.Englishness(buf)
+					fmt.Println(score)
+					return nil
+				},
+			},
+			{
+				Name: "frequency-count",
+				Action: func(c *cli.Context) error {
+					var bytecount [256]byte
+					var total int
+					reader := bufio.NewReader(os.Stdin)
+					for {
+						c, err := reader.ReadByte()
+						if err == io.EOF {
+							break
+						}
+						bytecount[c]++
+						total++
+					}
+					for _, b := range bytecount {
+						fmt.Printf("%f,\n", float64(b)/float64(total))
+					}
 					return nil
 				},
 			},
