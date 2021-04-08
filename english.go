@@ -33,21 +33,18 @@ var ENGLISH_FREQUENCY = map[byte]float64{
 
 // with thanks to https://github.com/Lukasa/cryptopals/blob/master/cryptopals/challenge_one/three.py
 func Englishness(buf []byte) float64 {
-	total_chars := 0
 	var total_per_letter [26]int
 	for _, b := range buf {
 		if b >= 'a' && b <= 'z' {
 			total_per_letter[b-'a']++
-			total_chars++
 		}
 		if b >= 'A' && b <= 'Z' {
 			total_per_letter[b-'A']++
-			total_chars++
 		}
 	}
 	coeff := float64(0)
 	for i := 0; i < 26; i++ {
-		coeff += math.Sqrt(ENGLISH_FREQUENCY[byte(i+'a')] * float64(total_per_letter[i]) / float64(total_chars))
+		coeff += math.Sqrt(ENGLISH_FREQUENCY[byte(i+'a')] * float64(total_per_letter[i]) / float64(len(buf)))
 	}
 	return coeff
 }
