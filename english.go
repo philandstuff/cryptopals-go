@@ -53,18 +53,38 @@ func Englishness(buf []byte) float64 {
 }
 
 // Finds the best-scoring single-byte XOR decrypt of buf.  Returns the
-// decrypted bytes and the englishness-score.
-func BestEnglishXorDecrypt(buf []byte) ([]byte, float64) {
+// decrypted bytes, the key byte and the englishness-score.
+func BestEnglishXorDecrypt(buf []byte) ([]byte, byte, float64) {
 	size := len(buf)
 	var best_score float64
 	var best_decrypt []byte
+	var best_key byte
 	for i := 0; i < 256; i++ {
 		decrypt_try := XorBufs(buf, bytes.Repeat([]byte{byte(i)}, size))
 		englishness := Englishness(decrypt_try)
 		if englishness > best_score {
 			best_score = englishness
 			best_decrypt = decrypt_try
+			best_key = byte(i)
 		}
 	}
-	return best_decrypt, best_score
+	return best_decrypt, best_key, best_score
+}
+
+// Finds the best-scoring repeating XOR decrypt of buf.  Returns the
+// decrypted bytes and the key.
+func BestEnglishRepeatingXorDecrypt(buf []byte) ([]byte, []byte) {
+	keysize := GuessKeysize(buf)
+	keysizeChunks := make([][]byte, (len(buf)/keysize)+1)
+	for i := range keysizeChunks {
+		keysizeChunks[i] = buf[i*keysize : (i+1)*keysize]
+	}
+	transposeChunks := Transpose(keysizeChunks)
+	guessedKey := make([]byte, keysize)
+	for i := range transposeChunks {
+		_, key, _ := BestEnglishXorDecrypt(transposeChunks[i])
+		guessedKey[i] = key
+	}
+	decrypt := XorRepeating(buf, guessedKey)
+	return decrypt, guessedKey
 }

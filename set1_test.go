@@ -31,7 +31,7 @@ func TestFixedXor(t *testing.T) {
 // Challenge 3
 func TestDecryptFixedXor(t *testing.T) {
 	buf := cryptopals.HexDecode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
-	decrypt, _ := cryptopals.BestEnglishXorDecrypt(buf)
+	decrypt, _, _ := cryptopals.BestEnglishXorDecrypt(buf)
 	// Spoiler!
 	if string(decrypt) != "Cooking MC's like a pound of bacon" {
 		t.Errorf("Actual %s did not match expected", string(decrypt))
@@ -44,5 +44,19 @@ func TestHammingDistance(t *testing.T) {
 	actualDistance := cryptopals.HammingDistance(buf1, buf2)
 	if actualDistance != 37 {
 		t.Errorf("Expected %d to be 37", actualDistance)
+	}
+}
+
+func TestTranspose(t *testing.T) {
+	bufs := [][]byte{
+		{1, 2},
+		{3, 4},
+	}
+	transposed := cryptopals.Transpose(bufs)
+	if transposed[0][0] != 1 ||
+		transposed[0][1] != 3 ||
+		transposed[1][0] != 2 ||
+		transposed[1][1] != 4 {
+		t.Errorf("Expected transpose %x/%x to be 0103/0204", transposed[0], transposed[1])
 	}
 }

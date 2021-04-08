@@ -72,6 +72,16 @@ func helpers() *cli.Command {
 					return nil
 				},
 			},
+			{
+				Name:  "guess-keysize",
+				Usage: "guess the keysize of a suspected vigenere ciphertext",
+				Action: func(c *cli.Context) error {
+					hex, _ := ioutil.ReadAll(os.Stdin)
+					buf := cryptopals.HexDecode(string(hex))
+					fmt.Println(cryptopals.GuessKeysize(buf))
+					return nil
+				},
+			},
 		},
 	}
 }

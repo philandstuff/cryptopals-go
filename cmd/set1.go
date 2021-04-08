@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -36,7 +35,7 @@ func challenge2(c *cli.Context) error {
 func challenge3(c *cli.Context) error {
 	text := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	buf := cryptopals.HexDecode(text)
-	decrypt, _ := cryptopals.BestEnglishXorDecrypt(buf)
+	decrypt, _, _ := cryptopals.BestEnglishXorDecrypt(buf)
 	fmt.Println(string(decrypt))
 	return nil
 }
@@ -45,33 +44,44 @@ func challenge4(c *cli.Context) error {
 	scanner := bufio.NewScanner(os.Stdin)
 	var best_score float64
 	var best_decrypt []byte
+	var best_key byte
 	best_line := 1
 	line := 1
 	for scanner.Scan() {
 		buf := cryptopals.HexDecode(scanner.Text())
-		decrypt, score := cryptopals.BestEnglishXorDecrypt(buf)
+		decrypt, key, score := cryptopals.BestEnglishXorDecrypt(buf)
 		if score > best_score {
+			best_key = key
 			best_score = score
 			best_decrypt = decrypt
 			best_line = line
 		}
 		line++
 	}
-	fmt.Printf("%d, %f: %s\n", best_line, best_score, string(best_decrypt))
+	fmt.Printf("%d, %d, %f: %s\n", best_line, best_key, best_score, string(best_decrypt))
 	return nil
 }
 
 func challenge5(c *cli.Context) error {
 	key := c.String("key")
 	text, _ := ioutil.ReadAll(os.Stdin)
-	keystream := bytes.Repeat([]byte(key), (len(text)/len(key))+1)
-	xored := cryptopals.XorBufs(text, keystream)
+	xored := cryptopals.XorRepeating(text, []byte(key))
 	actual := cryptopals.HexEncode(xored)
 	fmt.Println(actual)
 	if actual == "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f" || // hack for trailing newline, can't be bothered to sort it out
 		actual == "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f4f" {
 		fmt.Println("Bingo!")
 	}
+	return nil
+}
+
+func challenge6(c *cli.Context) error {
+	hex, _ := ioutil.ReadAll(os.Stdin)
+	buf := cryptopals.HexDecode(string(hex))
+	decrypt, key := cryptopals.BestEnglishRepeatingXorDecrypt(buf)
+
+	fmt.Printf("Decrypt: %s\n", string(decrypt))
+	fmt.Printf("Key: %x\n", key)
 	return nil
 }
 
@@ -110,6 +120,11 @@ func set1() *cli.Command {
 					},
 				},
 				Action: challenge5,
+			},
+			{
+				Name:   "challenge6",
+				Usage:  "break repeating-key XOR",
+				Action: challenge6,
 			},
 		},
 	}
