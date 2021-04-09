@@ -102,6 +102,19 @@ func challenge7(c *cli.Context) error {
 	return nil
 }
 
+func challenge8(c *cli.Context) error {
+	scanner := bufio.NewScanner(os.Stdin)
+	line := 1
+	for scanner.Scan() {
+		buf := cryptopals.HexDecode(scanner.Text())
+		if block := cryptopals.DetectRepeatedBlock(buf); block != nil {
+			fmt.Printf("line %d, block %x\n", line, block)
+		}
+		line++
+	}
+	return nil
+}
+
 func set1() *cli.Command {
 	return &cli.Command{
 		Name: "set1",
@@ -154,6 +167,11 @@ func set1() *cli.Command {
 					},
 				},
 				Action: challenge7,
+			},
+			{
+				Name:   "challenge8",
+				Usage:  "detect ECB",
+				Action: challenge8,
 			},
 		},
 	}

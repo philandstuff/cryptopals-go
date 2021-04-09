@@ -1,6 +1,9 @@
 package cryptopals
 
-import "crypto/cipher"
+import (
+	"crypto/cipher"
+	"encoding/binary"
+)
 
 type ecb struct {
 	b         cipher.Block
@@ -51,4 +54,24 @@ func (e *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	for i := 0; i < len(src)/e.blockSize; i++ {
 		e.b.Decrypt(dst[i*e.blockSize:], src[e.blockSize:])
 	}
+}
+
+func DetectRepeatedBlock(data []byte) []byte {
+	seen := make(map[uint64]map[uint64]bool)
+	for len(data) >= 16 {
+		i1 := binary.BigEndian.Uint64(data)
+		i2 := binary.BigEndian.Uint64(data[8:])
+		m, ok := seen[i1]
+		if !ok {
+			seen[i1] = make(map[uint64]bool)
+			m = seen[i1]
+		}
+		if m[i2] {
+			return data[0:16]
+		}
+		m[i2] = true
+
+		data = data[16:]
+	}
+	return nil
 }
