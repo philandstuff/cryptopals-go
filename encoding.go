@@ -1,6 +1,8 @@
 package cryptopals
 
-import "fmt"
+import (
+	"encoding/hex"
+)
 
 // in: a value in 6-bit range
 // out: the base64 representation of this value
@@ -24,13 +26,15 @@ func bitsToBase64Char(n byte) byte {
 }
 
 func HexDecode(in string) []byte {
-	var out []byte
-	fmt.Sscanf(in, "%x", &out)
+	out := make([]byte, len(in)/2)
+	hex.Decode(out, []byte(in))
 	return out
 }
 
 func HexEncode(in []byte) string {
-	return fmt.Sprintf("%x", in)
+	out := make([]byte, len(in)*2)
+	hex.Encode(out, in)
+	return string(out)
 }
 
 func Base64Encode(in []byte) []byte {
