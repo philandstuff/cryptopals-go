@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"crypto/aes"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -85,6 +87,21 @@ func challenge6(c *cli.Context) error {
 	return nil
 }
 
+func challenge7(c *cli.Context) error {
+	key := []byte(c.String("key"))
+	if len(key) != 16 {
+		return fmt.Errorf("key %s was not exactly 16 bytes long", string(key))
+	}
+	input := base64.NewDecoder(base64.StdEncoding, os.Stdin)
+	data, _ := ioutil.ReadAll(input)
+	decrypted := make([]byte, len(data))
+	cipher, _ := aes.NewCipher(key)
+	decrypter := cryptopals.NewECBDecrypter(cipher)
+	decrypter.CryptBlocks(decrypted, data)
+	fmt.Println(string(decrypted))
+	return nil
+}
+
 func set1() *cli.Command {
 	return &cli.Command{
 		Name: "set1",
@@ -125,6 +142,18 @@ func set1() *cli.Command {
 				Name:   "challenge6",
 				Usage:  "break repeating-key XOR",
 				Action: challenge6,
+			},
+			{
+				Name:  "challenge7",
+				Usage: "AES ECB",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "key",
+						Value: "YELLOW SUBMARINE",
+						Usage: "AES key (exactly 16 bytes)",
+					},
+				},
+				Action: challenge7,
 			},
 		},
 	}
