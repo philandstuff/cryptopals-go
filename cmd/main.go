@@ -16,6 +16,7 @@ func main() {
 		Name: "cryptopals",
 		Commands: []*cli.Command{
 			set1(),
+			set2(),
 			helpers(),
 		},
 	}
