@@ -6,8 +6,10 @@ import (
 	"math/bits"
 )
 
-// assumes len(buf1) <= len(buf2)
 func XorBufs(buf1, buf2 []byte) []byte {
+	if len(buf1) > len(buf2) {
+		panic("buf1 not long enough")
+	}
 	out := make([]byte, len(buf1))
 	for i := 0; i < len(buf1); i += 1 {
 		out[i] = buf1[i] ^ buf2[i]
