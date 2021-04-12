@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func s2c1(c *cli.Context) error {
+func challenge9(c *cli.Context) error {
 	size := c.Int("size")
 	in, _ := ioutil.ReadAll(os.Stdin)
 	out := cryptopals.Pkcs7pad(in, size)
@@ -22,7 +22,7 @@ func set2() *cli.Command {
 		Name: "set2",
 		Subcommands: []*cli.Command{
 			{
-				Name:  "challenge1",
+				Name:  "challenge9",
 				Usage: "pkcs#7 padding",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
@@ -31,7 +31,7 @@ func set2() *cli.Command {
 						Usage: "Block size to pad to",
 					},
 				},
-				Action: s2c1,
+				Action: challenge9,
 			},
 		},
 	}

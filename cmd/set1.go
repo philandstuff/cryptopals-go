@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func s1c1(c *cli.Context) error {
+func challenge1(c *cli.Context) error {
 	decoded := cryptopals.HexDecode("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d")
 	base64 := cryptopals.Base64Encode(decoded)
 	fmt.Println(string(base64))
@@ -22,7 +22,7 @@ func s1c1(c *cli.Context) error {
 	return nil
 }
 
-func s1c2(c *cli.Context) error {
+func challenge2(c *cli.Context) error {
 	buf1 := cryptopals.HexDecode("1c0111001f010100061a024b53535009181c")
 	buf2 := cryptopals.HexDecode("686974207468652062756c6c277320657965")
 	xored := cryptopals.XorBufs(buf1, buf2)
@@ -34,7 +34,7 @@ func s1c2(c *cli.Context) error {
 	return nil
 }
 
-func s1c3(c *cli.Context) error {
+func challenge3(c *cli.Context) error {
 	text := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	buf := cryptopals.HexDecode(text)
 	decrypt, _, _ := cryptopals.BestEnglishXorDecrypt(buf)
@@ -42,7 +42,7 @@ func s1c3(c *cli.Context) error {
 	return nil
 }
 
-func s1c4(c *cli.Context) error {
+func challenge4(c *cli.Context) error {
 	scanner := bufio.NewScanner(os.Stdin)
 	var best_score float64
 	var best_decrypt []byte
@@ -64,7 +64,7 @@ func s1c4(c *cli.Context) error {
 	return nil
 }
 
-func s1c5(c *cli.Context) error {
+func challenge5(c *cli.Context) error {
 	key := c.String("key")
 	text, _ := ioutil.ReadAll(os.Stdin)
 	xored := cryptopals.XorRepeating(text, []byte(key))
@@ -77,7 +77,7 @@ func s1c5(c *cli.Context) error {
 	return nil
 }
 
-func s1c6(c *cli.Context) error {
+func challenge6(c *cli.Context) error {
 	hex, _ := ioutil.ReadAll(os.Stdin)
 	buf := cryptopals.HexDecode(string(hex))
 	decrypt, key := cryptopals.BestEnglishRepeatingXorDecrypt(buf)
@@ -87,7 +87,7 @@ func s1c6(c *cli.Context) error {
 	return nil
 }
 
-func s1c7(c *cli.Context) error {
+func challenge7(c *cli.Context) error {
 	key := []byte(c.String("key"))
 	if len(key) != 16 {
 		return fmt.Errorf("key %s was not exactly 16 bytes long", string(key))
@@ -102,7 +102,7 @@ func s1c7(c *cli.Context) error {
 	return nil
 }
 
-func s1c8(c *cli.Context) error {
+func challenge8(c *cli.Context) error {
 	scanner := bufio.NewScanner(os.Stdin)
 	line := 1
 	for scanner.Scan() {
@@ -122,22 +122,22 @@ func set1() *cli.Command {
 			{
 				Name:   "challenge1",
 				Usage:  "convert hex to base64",
-				Action: s1c1,
+				Action: challenge1,
 			},
 			{
 				Name:   "challenge2",
 				Usage:  "fixed xor",
-				Action: s1c2,
+				Action: challenge2,
 			},
 			{
 				Name:   "challenge3",
 				Usage:  "decrypt single-byte xor",
-				Action: s1c3,
+				Action: challenge3,
 			},
 			{
 				Name:   "challenge4",
 				Usage:  "find an english single-byte xor from many, provided on stdin",
-				Action: s1c4,
+				Action: challenge4,
 			},
 			{
 				Name:  "challenge5",
@@ -149,12 +149,12 @@ func set1() *cli.Command {
 						Usage: "Key to use for XOR",
 					},
 				},
-				Action: s1c5,
+				Action: challenge5,
 			},
 			{
 				Name:   "challenge6",
 				Usage:  "break repeating-key XOR",
-				Action: s1c6,
+				Action: challenge6,
 			},
 			{
 				Name:  "challenge7",
@@ -166,12 +166,12 @@ func set1() *cli.Command {
 						Usage: "AES key (exactly 16 bytes)",
 					},
 				},
-				Action: s1c7,
+				Action: challenge7,
 			},
 			{
 				Name:   "challenge8",
 				Usage:  "detect ECB",
-				Action: s1c8,
+				Action: challenge8,
 			},
 		},
 	}
