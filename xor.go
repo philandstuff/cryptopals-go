@@ -6,25 +6,24 @@ import (
 	"math/bits"
 )
 
-func XorBufs(buf1, buf2 []byte) []byte {
-	if len(buf1) > len(buf2) {
-		panic("buf1 not long enough")
+func XorBufs(dst, src []byte) {
+	if len(src) > len(dst) {
+		panic("dst not long enough")
 	}
-	out := make([]byte, len(buf1))
-	for i := 0; i < len(buf1); i += 1 {
-		out[i] = buf1[i] ^ buf2[i]
+	for i := 0; i < len(src); i += 1 {
+		dst[i] ^= src[i]
 	}
-	return out
 }
 
-func XorRepeating(buf, key []byte) []byte {
+func XorRepeating(buf, key []byte) {
 	keystream := bytes.Repeat([]byte(key), (len(buf)/len(key))+1)
-	xored := XorBufs(buf, keystream)
-	return xored
+	XorBufs(buf, keystream)
 }
 
 func HammingDistance(buf1, buf2 []byte) int {
-	xored := XorBufs(buf1, buf2)
+	xored := make([]byte, len(buf1))
+	copy(xored, buf1)
+	XorBufs(xored, buf2)
 	count := 0
 	for _, b := range xored {
 		count += bits.OnesCount8(b)
