@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 )
 
+//// Electronic Code Book (ECB)
+
 type ecb struct {
 	b         cipher.Block
 	blockSize int
@@ -29,7 +31,7 @@ func (e *ecbEncrypter) CryptBlocks(dst, src []byte) {
 		panic("Not enough room in dst")
 	}
 	for i := 0; i < len(src)/e.blockSize; i++ {
-		e.b.Encrypt(dst[i*e.blockSize:], src[e.blockSize:])
+		e.b.Encrypt(dst[i*e.blockSize:], src[i*e.blockSize:])
 	}
 }
 
@@ -42,19 +44,21 @@ func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
 	})
 }
 
-func (e *ecbDecrypter) BlockSize() int { return e.blockSize }
+func (d *ecbDecrypter) BlockSize() int { return d.blockSize }
 
-func (e *ecbDecrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%e.blockSize != 0 {
+func (d *ecbDecrypter) CryptBlocks(dst, src []byte) {
+	if len(src)%d.blockSize != 0 {
 		panic("Not a fixed number of blocks")
 	}
 	if len(dst) < len(src) {
 		panic("Not enough room in dst")
 	}
-	for i := 0; i < len(src)/e.blockSize; i++ {
-		e.b.Decrypt(dst[i*e.blockSize:], src[e.blockSize:])
+	for i := 0; i < len(src)/d.blockSize; i++ {
+		d.b.Decrypt(dst[i*d.blockSize:], src[i*d.blockSize:])
 	}
 }
+
+// Useful for spotting ECB in the wild
 
 func DetectRepeatedBlock(data []byte) []byte {
 	seen := make(map[uint64]map[uint64]bool)
