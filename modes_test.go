@@ -11,17 +11,21 @@ import (
 	"github.com/philandstuff/cryptopals-go"
 )
 
+var genBlock = gen.SliceOfN(16, gen.UInt8())
+
 func TestECBDecryptEncrypt(t *testing.T) {
 	properties := gopter.NewProperties(nil)
 
 	properties.Property("ECB encrypt/decrypt is a no-op", prop.ForAll(
-		func(key []byte, data []byte) bool {
-			// trim to a block boundary
+		func(key []byte, blocks [][]byte) bool {
 			cipher, err := aes.NewCipher(key)
 			if err != nil {
 				panic(err)
 			}
-			data = data[:(len(data)/cipher.BlockSize())*cipher.BlockSize()]
+			data := []byte{}
+			for _, block := range blocks {
+				data = append(data, block...)
+			}
 			encrypter := cryptopals.NewECBEncrypter(cipher)
 			decrypter := cryptopals.NewECBDecrypter(cipher)
 			actual := make([]byte, len(data))
@@ -29,8 +33,9 @@ func TestECBDecryptEncrypt(t *testing.T) {
 			decrypter.CryptBlocks(actual, actual)
 			return bytes.Equal(actual, data)
 		},
-		gen.SliceOfN(16, gen.UInt8()),
-		gen.SliceOf(gen.UInt8()),
+		genBlock,
+		gen.SliceOf(genBlock),
 	))
+
 	properties.TestingRun(t)
 }
