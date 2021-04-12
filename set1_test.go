@@ -1,6 +1,7 @@
 package cryptopals_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/philandstuff/cryptopals-go"
@@ -53,10 +54,8 @@ func TestTranspose(t *testing.T) {
 		{3, 4},
 	}
 	transposed := cryptopals.Transpose(bufs)
-	if transposed[0][0] != 1 ||
-		transposed[0][1] != 3 ||
-		transposed[1][0] != 2 ||
-		transposed[1][1] != 4 {
+	if !bytes.Equal(transposed[0], []byte{1, 3}) ||
+		!bytes.Equal(transposed[1], []byte{2, 4}) {
 		t.Errorf("Expected transpose %x/%x to be 0103/0204", transposed[0], transposed[1])
 	}
 }
