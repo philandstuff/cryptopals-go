@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/aes"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,6 +16,25 @@ func challenge9(c *cli.Context) error {
 	in, _ := ioutil.ReadAll(os.Stdin)
 	out := cryptopals.Pkcs7pad(in, size)
 	fmt.Printf("%q\n", string(out))
+	return nil
+}
+
+func challenge10(c *cli.Context) error {
+	key := []byte(c.String("key"))
+	if len(key) != 16 {
+		return fmt.Errorf("key %s was not exactly 16 bytes long", string(key))
+	}
+	iv := []byte(c.String("iv"))
+	if len(iv) != 16 {
+		return fmt.Errorf("iv %x was not exactly 16 bytes long", iv)
+	}
+	input := base64.NewDecoder(base64.StdEncoding, os.Stdin)
+	data, _ := ioutil.ReadAll(input)
+	decrypted := make([]byte, len(data))
+	cipher, _ := aes.NewCipher(key)
+	decrypter := cryptopals.NewCBCDecrypter(cipher, iv)
+	decrypter.CryptBlocks(decrypted, data)
+	fmt.Println(string(decrypted))
 	return nil
 }
 
@@ -32,6 +53,25 @@ func set2() *cli.Command {
 					},
 				},
 				Action: challenge9,
+			},
+			{
+				Name:  "challenge10",
+				Usage: "CBC decryption",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "key",
+						Value: "YELLOW SUBMARINE",
+						Usage: "key",
+					},
+					&cli.StringFlag{
+						Name: "iv",
+						Value: string([]byte{
+							0, 0, 0, 0, 0, 0, 0, 0,
+							0, 0, 0, 0, 0, 0, 0, 0}),
+						Usage: "initialization vector",
+					},
+				},
+				Action: challenge10,
 			},
 		},
 	}

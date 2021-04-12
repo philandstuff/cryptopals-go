@@ -119,11 +119,16 @@ func (d *cbcDecrypter) CryptBlocks(dst, src []byte) {
 	if len(dst) < len(src) {
 		panic("Not enough room in dst")
 	}
-	next := d.iv
+	next := make([]byte, d.blockSize)
+	copy(next, d.iv)
+	srcBlock := make([]byte, d.blockSize)
 	for i := 0; i < len(src)/d.blockSize; i++ {
-		d.b.Decrypt(dst[i*d.blockSize:], src[i*d.blockSize:])
+		// we copy srcBlock just in case dst and src are the same
+		// slice
+		copy(srcBlock, src[i*d.blockSize:(i+1)*d.blockSize])
+		d.b.Decrypt(dst[i*d.blockSize:], srcBlock)
 		XorBufs(dst[i*d.blockSize:(i+1)*d.blockSize], next)
-		next = src[i*d.blockSize : (i+1)*d.blockSize]
+		copy(next, srcBlock)
 	}
 }
 
