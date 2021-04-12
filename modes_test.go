@@ -37,5 +37,27 @@ func TestECBDecryptEncrypt(t *testing.T) {
 		gen.SliceOf(genBlock),
 	))
 
+	properties.Property("CBC encrypt/decrypt is a no-op", prop.ForAll(
+		func(key, iv []byte, blocks [][]byte) bool {
+			cipher, err := aes.NewCipher(key)
+			if err != nil {
+				panic(err)
+			}
+			data := []byte{}
+			for _, block := range blocks {
+				data = append(data, block...)
+			}
+			encrypter := cryptopals.NewCBCEncrypter(cipher, iv)
+			decrypter := cryptopals.NewCBCDecrypter(cipher, iv)
+			actual := make([]byte, len(data))
+			encrypter.CryptBlocks(actual, data)
+			decrypter.CryptBlocks(actual, actual)
+			return bytes.Equal(actual, data)
+		},
+		genBlock,
+		genBlock,
+		gen.SliceOf(genBlock),
+	))
+
 	properties.TestingRun(t)
 }
