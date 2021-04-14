@@ -5,7 +5,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/philandstuff/cryptopals-go"
 	"github.com/urfave/cli/v2"
@@ -35,6 +38,17 @@ func challenge10(c *cli.Context) error {
 	decrypter := cryptopals.NewCBCDecrypter(cipher, iv)
 	decrypter.CryptBlocks(decrypted, data)
 	fmt.Println(string(decrypted))
+	return nil
+}
+
+func challenge11(c *cli.Context) error {
+	rand.Seed(time.Now().UnixNano())
+	isECBMode := cryptopals.Challenge11DetectECB(cryptopals.Challenge11EncryptRandomData)
+	if isECBMode {
+		log.Print("Detected ECB")
+	} else {
+		log.Print("Detected not-ECB")
+	}
 	return nil
 }
 
@@ -72,6 +86,11 @@ func set2() *cli.Command {
 					},
 				},
 				Action: challenge10,
+			},
+			{
+				Name:   "challenge11",
+				Usage:  "ECB/CBC detection",
+				Action: challenge11,
 			},
 		},
 	}
