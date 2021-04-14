@@ -11,7 +11,7 @@ import (
 // Challenge 11 is weird enough to deserve its own file
 
 func Challenge11DetectECB(encryptionOracle func(userinput []byte) []byte) bool {
-	testData := bytes.Repeat([]byte{0}, 16*3)
+	testData := bytes.Repeat([]byte{0}, 16*3-1)
 	cipherText := encryptionOracle(testData)
 	block := DetectRepeatedBlock(cipherText)
 	return block != nil
