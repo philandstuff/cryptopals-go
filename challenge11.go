@@ -39,6 +39,10 @@ func Challenge11EncryptRandomData(userinput []byte) []byte {
 }
 
 func Challenge11EncryptData(chooseECB bool, key, iv []byte, prefix, suffix []byte) func(userinput []byte) []byte {
+	cph, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
 	return func(userinput []byte) []byte {
 		buf := make([]byte, len(prefix)+len(userinput)+len(suffix))
 		copy(buf, prefix)
@@ -46,10 +50,6 @@ func Challenge11EncryptData(chooseECB bool, key, iv []byte, prefix, suffix []byt
 		copy(buf[len(prefix)+len(userinput):], suffix)
 
 		var encrypter cipher.BlockMode
-		cph, err := aes.NewCipher(key)
-		if err != nil {
-			panic(err)
-		}
 		if chooseECB {
 			encrypter = NewECBEncrypter(cph)
 		} else {

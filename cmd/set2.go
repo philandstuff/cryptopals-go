@@ -52,6 +52,15 @@ func challenge11(c *cli.Context) error {
 	return nil
 }
 
+func challenge12(c *cli.Context) error {
+	rand.Seed(time.Now().UnixNano())
+	var secretKey [16]byte
+	rand.Read(secretKey[:])
+	blockSize := cryptopals.DetectBlockSizeFromOracle(cryptopals.Challenge12EncryptionOracle(secretKey[:]))
+	fmt.Printf("Detected block size of %d\n", blockSize)
+	return nil
+}
+
 func set2() *cli.Command {
 	return &cli.Command{
 		Name: "set2",
@@ -91,6 +100,11 @@ func set2() *cli.Command {
 				Name:   "challenge11",
 				Usage:  "ECB/CBC detection",
 				Action: challenge11,
+			},
+			{
+				Name:   "challenge12",
+				Usage:  "Break ECB based on encryption oracle",
+				Action: challenge12,
 			},
 		},
 	}
