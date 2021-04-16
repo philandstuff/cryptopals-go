@@ -56,8 +56,15 @@ func challenge12(c *cli.Context) error {
 	rand.Seed(time.Now().UnixNano())
 	var secretKey [16]byte
 	rand.Read(secretKey[:])
-	blockSize := cryptopals.DetectBlockSizeFromOracle(cryptopals.Challenge12EncryptionOracle(secretKey[:]))
-	fmt.Printf("Detected block size of %d\n", blockSize)
+	oracle := cryptopals.Challenge12EncryptionOracle(secretKey[:])
+	blockSize, hiddenTextSize := cryptopals.DetectBlockSizeFromOracle(oracle)
+	fmt.Printf("Detected block size of %d, hidden text size of %d\n", blockSize, hiddenTextSize)
+	isECB := cryptopals.Challenge11DetectECB(oracle)
+	if isECB {
+		fmt.Println("Yes, it's ECB")
+	}
+	decrypt := cryptopals.Challenge12DecryptECBFromOracle(blockSize, hiddenTextSize, oracle)
+	fmt.Printf("Decrypted: %s\n", string(decrypt))
 	return nil
 }
 
