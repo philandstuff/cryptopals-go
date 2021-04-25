@@ -65,19 +65,14 @@ func Challenge12DecryptECBFromOracle(blockSize int, unknownTextSize int, oracle 
 		for j := 0; j < 256; j++ {
 			testData[j*blockSize+blockSize-1] = byte(j)
 		}
-		log.Printf("Encrypting: %x\n", testData)
 		cipherText := oracle(testData)
 		targetBlock := 256 + i/blockSize
 		target := cipherText[targetBlock*blockSize : (targetBlock+1)*blockSize]
-		log.Printf("Searching for: %x\n", target)
-		log.Printf("In: %x", cipherText)
 		decryptedByte := bytes.Index(cipherText, target) / blockSize
 		if decryptedByte < 0 || decryptedByte >= 256 {
 			log.Fatalf("Didn't expect %d. Decrypted so far: %x", decryptedByte, knownText)
 		}
 		knownText = append(knownText, byte(decryptedByte))
-		log.Printf("Decrypted byte is %x", decryptedByte)
 	}
-	log.Printf("Decrypted so far %x", knownText)
 	return knownText
 }
