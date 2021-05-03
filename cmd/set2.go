@@ -68,6 +68,27 @@ func challenge12(c *cli.Context) error {
 	return nil
 }
 
+func challenge13(c *cli.Context) error {
+	rand.Seed(time.Now().UnixNano())
+	var secretKey [16]byte
+	rand.Read(secretKey[:])
+
+	c13Codec := cryptopals.NewC13Codec(secretKey[:])
+	// for the block "admin&uid=10&rol"
+	wordAdminCipherText := c13Codec.EncodeProfileFor("foo@bar123admin")
+	// for the correctly-padded block "=user"
+	equalsUserCipherText := c13Codec.EncodeProfileFor("foo@bar1234567")
+	// for the blocks "foo@bar123456&uid=10&role="
+	roleEqualsCipherText := c13Codec.EncodeProfileFor("foo@bar123456")
+	roleEqualsCipherText = append(roleEqualsCipherText, equalsUserCipherText[32:48]...)
+	copy(roleEqualsCipherText[32:48], wordAdminCipherText[16:32])
+	profile1 := c13Codec.DecryptProfile(wordAdminCipherText)
+	fmt.Printf("Decrypted: %#v\n", profile1)
+	profile2 := c13Codec.DecryptProfile(roleEqualsCipherText)
+	fmt.Printf("Decrypted: %#v\n", profile2)
+	return nil
+}
+
 func set2() *cli.Command {
 	return &cli.Command{
 		Name: "set2",
@@ -112,6 +133,11 @@ func set2() *cli.Command {
 				Name:   "challenge12",
 				Usage:  "Break ECB based on encryption oracle",
 				Action: challenge12,
+			},
+			{
+				Name:   "challenge13",
+				Usage:  "ECB cut and paste",
+				Action: challenge13,
 			},
 		},
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/leanovate/gopter"
 	"github.com/leanovate/gopter/gen"
 	"github.com/leanovate/gopter/prop"
+	"github.com/maxatome/go-testdeep/td"
 	"github.com/philandstuff/cryptopals-go"
 )
 
@@ -54,4 +55,51 @@ func TestECBDetector(t *testing.T) {
 	))
 
 	properties.TestingRun(t)
+}
+
+// Challenge 13
+
+func TestParseKV(t *testing.T) {
+	t.Run("one key/value pair", func(t *testing.T) {
+		in := "foo=bar"
+		out := cryptopals.ParseKV(in)
+		expected := map[string]string{"foo": "bar"}
+		td.Cmp(t, out, expected)
+	})
+	t.Run("two key/value pairs", func(t *testing.T) {
+		in := "foo=bar&baz=quux"
+		out := cryptopals.ParseKV(in)
+		expected := map[string]string{"foo": "bar", "baz": "quux"}
+		td.Cmp(t, out, expected)
+	})
+}
+
+func TestProfileFor(t *testing.T) {
+	t.Run("basic usage", func(t *testing.T) {
+		in := "foo@example.com"
+		out := cryptopals.ProfileFor(in)
+		expected := "email=foo@example.com&uid=10&role=user"
+		td.Cmp(t, out, expected)
+	})
+	t.Run("nasty characters should get eaten", func(t *testing.T) {
+		in := "foo@example.com&role=admin"
+		out := cryptopals.ProfileFor(in)
+		expected := "email=foo@example.com&uid=10&role=user"
+		td.Cmp(t, out, expected)
+	})
+}
+
+func TestTrimPkcs7Padding(t *testing.T) {
+	t.Run("0x1", func(t *testing.T) {
+		in := []byte{1, 2, 3, 1}
+		out := cryptopals.TrimPkcs7Padding(in)
+		expected := []byte{1, 2, 3}
+		td.Cmp(t, out, expected)
+	})
+	t.Run("0x2", func(t *testing.T) {
+		in := []byte{1, 2, 2, 2}
+		out := cryptopals.TrimPkcs7Padding(in)
+		expected := []byte{1, 2}
+		td.Cmp(t, out, expected)
+	})
 }

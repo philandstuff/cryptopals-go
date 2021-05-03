@@ -15,3 +15,8 @@ func Pkcs7pad(buf []byte, blockSize int) []byte {
 	}
 	return buf
 }
+
+func TrimPkcs7Padding(buf []byte) []byte {
+	bytesToTrim := buf[len(buf)-1]
+	return buf[:len(buf)-int(bytesToTrim)]
+}
