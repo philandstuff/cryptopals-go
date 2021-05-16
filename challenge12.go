@@ -69,9 +69,22 @@ func Challenge12DecryptECBFromOracle(blockSize int, unknownTextSize int, oracle 
 			testData[j*blockSize+blockSize-1] = byte(j)
 		}
 		cipherText := oracle(testData)
-		targetBlock := 256 + i/blockSize
-		target := cipherText[targetBlock*blockSize : (targetBlock+1)*blockSize]
-		decryptedByte := bytes.Index(cipherText, target) / blockSize
+
+		repeatedBlock := DetectRepeatedBlock(cipherText)
+		if repeatedBlock == nil {
+			log.Fatalf("failed to find repeated block after decrypting %s\ntestData %x\ncipherText %x", string(knownText), testData, cipherText)
+		}
+
+		foundBlock := bytes.Index(cipherText, repeatedBlock) / blockSize
+		targetBlockDist := bytes.Index(cipherText[foundBlock*blockSize+blockSize:], repeatedBlock) / blockSize
+		if foundBlock == -1 {
+			panic("can't happen?")
+		}
+		if targetBlockDist == -1 {
+			log.Fatalf("didn't find a second block; detected block %x; ciphertext %x", repeatedBlock, cipherText)
+		}
+		decryptedByte := (256 - (targetBlockDist + 1)) + len(knownText)/blockSize
+
 		if decryptedByte < 0 || decryptedByte >= 256 {
 			log.Fatalf("Didn't expect %d. Decrypted so far: %x", decryptedByte, knownText)
 		}
