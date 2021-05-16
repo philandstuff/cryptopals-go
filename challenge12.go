@@ -5,20 +5,23 @@ import (
 	"crypto/aes"
 	"encoding/base64"
 	"log"
+	"math/rand"
 )
 
-const fixedString = `Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg
+const c12FixedString = `Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg
 aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
 dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
 YnkK`
 
-func Challenge12EncryptionOracle(key []byte) func(userinput []byte) []byte {
-	cph, err := aes.NewCipher(key)
+func Challenge12EncryptionOracle() func(userinput []byte) []byte {
+	var secretKey [16]byte
+	rand.Read(secretKey[:])
+	cph, err := aes.NewCipher(secretKey[:])
 	if err != nil {
 		panic(err)
 	}
 	encrypter := NewECBEncrypter(cph)
-	fixedSuffix, err := base64.StdEncoding.DecodeString(fixedString)
+	fixedSuffix, err := base64.StdEncoding.DecodeString(c12FixedString)
 	if err != nil {
 		panic(err)
 	}

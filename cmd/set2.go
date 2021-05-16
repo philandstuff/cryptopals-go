@@ -54,9 +54,7 @@ func challenge11(c *cli.Context) error {
 
 func challenge12(c *cli.Context) error {
 	rand.Seed(time.Now().UnixNano())
-	var secretKey [16]byte
-	rand.Read(secretKey[:])
-	oracle := cryptopals.Challenge12EncryptionOracle(secretKey[:])
+	oracle := cryptopals.Challenge12EncryptionOracle()
 	blockSize, hiddenTextSize := cryptopals.DetectBlockSizeFromOracle(oracle)
 	fmt.Printf("Detected block size of %d, hidden text size of %d\n", blockSize, hiddenTextSize)
 	isECB := cryptopals.Challenge11DetectECB(oracle)
@@ -86,6 +84,20 @@ func challenge13(c *cli.Context) error {
 	fmt.Printf("Decrypted: %#v\n", profile1)
 	profile2 := c13Codec.DecryptProfile(roleEqualsCipherText)
 	fmt.Printf("Decrypted: %#v\n", profile2)
+	return nil
+}
+
+func challenge14(c *cli.Context) error {
+	rand.Seed(time.Now().UnixNano())
+	oracle := cryptopals.Challenge14EncryptionOracle()
+	blockSize := cryptopals.Challenge14DetectBlockSizeFromOracle(oracle)
+	fmt.Printf("Detected block size of %d\n", blockSize)
+	isECB := cryptopals.Challenge11DetectECB(oracle)
+	if isECB {
+		fmt.Println("Yes, it's ECB")
+	}
+	decrypt := cryptopals.Challenge14DecryptECBFromOracle(blockSize, oracle)
+	fmt.Printf("Decrypted: %s\n", string(decrypt))
 	return nil
 }
 
@@ -138,6 +150,11 @@ func set2() *cli.Command {
 				Name:   "challenge13",
 				Usage:  "ECB cut and paste",
 				Action: challenge13,
+			},
+			{
+				Name:   "challenge14",
+				Usage:  "Break ECB based on harder encryption oracle",
+				Action: challenge14,
 			},
 		},
 	}
