@@ -92,23 +92,34 @@ func TestProfileFor(t *testing.T) {
 func TestTrimPkcs7Padding(t *testing.T) {
 	t.Run("0x1", func(t *testing.T) {
 		in := []byte{1, 2, 3, 1}
-		out := cryptopals.TrimPkcs7Padding(in)
+		out, err := cryptopals.TrimPkcs7Padding(in)
+		if err != nil {
+			t.Fatalf("Expected success, but saw error %v", err)
+		}
 		expected := []byte{1, 2, 3}
 		td.Cmp(t, out, expected)
 	})
 	t.Run("0x2", func(t *testing.T) {
 		in := []byte{1, 2, 2, 2}
-		out := cryptopals.TrimPkcs7Padding(in)
+		out, err := cryptopals.TrimPkcs7Padding(in)
+		if err != nil {
+			t.Fatalf("Expected success, but saw error %v", err)
+		}
 		expected := []byte{1, 2}
 		td.Cmp(t, out, expected)
 	})
-	t.Run("should panic with invalid padding", func(t *testing.T) {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Errorf("The code did not panic")
-			}
-		}()
+	t.Run("should error with invalid padding", func(t *testing.T) {
 		in := []byte{1, 2, 1, 2}
-		cryptopals.TrimPkcs7Padding(in)
+		_, err := cryptopals.TrimPkcs7Padding(in)
+		if err == nil {
+			t.Error("Expected error, but saw none")
+		}
+	})
+	t.Run("should error with zero byte trailer", func(t *testing.T) {
+		in := []byte{1, 2, 1, 0}
+		_, err := cryptopals.TrimPkcs7Padding(in)
+		if err == nil {
+			t.Error("Expected error, but saw none")
+		}
 	})
 }

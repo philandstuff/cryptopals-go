@@ -8,7 +8,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"time"
 
 	"github.com/philandstuff/cryptopals-go"
 	"github.com/urfave/cli/v2"
@@ -42,7 +41,6 @@ func challenge10(c *cli.Context) error {
 }
 
 func challenge11(c *cli.Context) error {
-	rand.Seed(time.Now().UnixNano())
 	isECBMode := cryptopals.Challenge11DetectECB(cryptopals.Challenge11EncryptRandomData)
 	if isECBMode {
 		log.Print("Detected ECB")
@@ -53,7 +51,6 @@ func challenge11(c *cli.Context) error {
 }
 
 func challenge12(c *cli.Context) error {
-	rand.Seed(time.Now().UnixNano())
 	oracle := cryptopals.Challenge12EncryptionOracle()
 	blockSize, hiddenTextSize := cryptopals.DetectBlockSizeFromOracle(oracle)
 	fmt.Printf("Detected block size of %d, hidden text size of %d\n", blockSize, hiddenTextSize)
@@ -67,7 +64,6 @@ func challenge12(c *cli.Context) error {
 }
 
 func challenge13(c *cli.Context) error {
-	rand.Seed(time.Now().UnixNano())
 	var secretKey [16]byte
 	rand.Read(secretKey[:])
 
@@ -88,7 +84,6 @@ func challenge13(c *cli.Context) error {
 }
 
 func challenge14(c *cli.Context) error {
-	rand.Seed(time.Now().UnixNano())
 	oracle := cryptopals.Challenge14EncryptionOracle()
 	blockSize := cryptopals.Challenge14DetectBlockSizeFromOracle(oracle)
 	fmt.Printf("Detected block size of %d\n", blockSize)
@@ -102,7 +97,6 @@ func challenge14(c *cli.Context) error {
 }
 
 func challenge16(*cli.Context) error {
-	rand.Seed(time.Now().UnixNano())
 	c16 := cryptopals.NewC16Thing()
 	cipherText := c16.EncryptWithUserData("KadminMtrueK")
 	if c16.DecryptAndCheckForAdmin(cipherText) {

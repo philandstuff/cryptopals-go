@@ -5,18 +5,22 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/philandstuff/cryptopals-go"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	app := &cli.App{
 		Name: "cryptopals",
 		Commands: []*cli.Command{
 			set1(),
 			set2(),
+			set3(),
 			helpers(),
 		},
 	}

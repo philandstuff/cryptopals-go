@@ -53,5 +53,9 @@ func (c *C13Codec) DecryptProfile(cipherText []byte) map[string]string {
 	dec := NewECBDecrypter(c.b)
 	plainText := make([]byte, len(cipherText))
 	dec.CryptBlocks(plainText, cipherText)
-	return ParseKV(string(TrimPkcs7Padding(plainText)))
+	buf, err := TrimPkcs7Padding(plainText)
+	if err != nil {
+		panic(err)
+	}
+	return ParseKV(string(buf))
 }
