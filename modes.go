@@ -133,7 +133,7 @@ func (d *cbcDecrypter) CryptBlocks(dst, src []byte) {
 }
 
 // Useful for spotting ECB in the wild
-
+// assumes block size is 16 bytes
 func DetectRepeatedBlock(data []byte) []byte {
 	seen := make(map[uint64]map[uint64]bool)
 	for len(data) >= 16 {

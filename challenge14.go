@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"encoding/base64"
+	"log"
 	"math/rand"
 )
 
@@ -56,11 +57,13 @@ DECRYPT_BYTE:
 		} else {
 			copy(testBlock, knownText[len(knownText)-blockSize+1:])
 		}
-		testData := append([]byte{0}, bytes.Repeat(testBlock, 256)...)
+		// we prepend two blocks of "YELLOW SUBMARINE" to detect if we
+		// have aligned ourselves appropriately
+		testData := append(bytes.Repeat([]byte("YELLOW SUBMARINE"), 2), bytes.Repeat(testBlock, 256)...)
 		testData = append(testData, make([]byte, blockSize-(i%blockSize)-1)...)
 
 		for j := 0; j < 256; j++ {
-			testData[j*blockSize+blockSize] = byte(j)
+			testData[(j+2)*blockSize+blockSize-1] = byte(j)
 		}
 		// The difference with Challenge 12 is that there is a random
 		// prefix added within the oracle. This means we don't know
@@ -72,13 +75,39 @@ DECRYPT_BYTE:
 		// it seems to get confused sometimes.
 		for try := 0; try < 100; try++ {
 			cipherText := oracle(testData)
-			targetBlock := 256 + i/blockSize + 1
-			target := cipherText[targetBlock*blockSize : (targetBlock+1)*blockSize]
-			decryptedByte := (bytes.Index(cipherText, target) / blockSize) - 1
-			if decryptedByte < 0 || decryptedByte >= 256 {
+
+			yellowSubmarine := DetectRepeatedBlock(cipherText)
+			if yellowSubmarine == nil {
+				continue // not find, try again
+			}
+			yellowSubmarine1 := bytes.Index(cipherText, yellowSubmarine)
+			yellowSubmarine2 := bytes.Index(cipherText[yellowSubmarine1+blockSize:], yellowSubmarine)
+			if yellowSubmarine2 != 0 {
+				continue // the repeated block wasn't our yellowSubmarine sentinel
+			}
+			// strip all the ciphertext up to and including the yellow
+			// submarine sentinel
+			cipherText = cipherText[yellowSubmarine1+2*blockSize:]
+			repeatedBlock := DetectRepeatedBlock(cipherText)
+			if repeatedBlock == nil {
 				continue // didn't find it, try again
 			}
+
+			foundBlock := bytes.Index(cipherText, repeatedBlock) / blockSize
+			targetBlockDist := bytes.Index(cipherText[foundBlock*blockSize+blockSize:], repeatedBlock) / blockSize
+			if foundBlock == -1 {
+				panic("can't happen?")
+			}
+			if targetBlockDist == -1 {
+				log.Fatalf("didn't find a second block")
+			}
+			decryptedByte := (256 - (targetBlockDist + 1)) + len(knownText)/blockSize
+			if foundBlock+targetBlockDist-len(knownText)/blockSize != 255 {
+				// we've detected something weird; ignore it and try again
+				continue
+			}
 			knownText = append(knownText, byte(decryptedByte))
+			// log.Fatalf("decrypted byte %x, foundBlock %d, targetBlockDist %x\nrepeatedBlock %x\ncipherText %x", decryptedByte, foundBlock, targetBlockDist, repeatedBlock, cipherText)
 			continue DECRYPT_BYTE
 		}
 		break
