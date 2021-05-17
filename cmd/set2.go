@@ -101,6 +101,26 @@ func challenge14(c *cli.Context) error {
 	return nil
 }
 
+func challenge16(*cli.Context) error {
+	rand.Seed(time.Now().UnixNano())
+	c16 := cryptopals.NewC16Thing()
+	cipherText := c16.EncryptWithUserData("KadminMtrueK")
+	if c16.DecryptAndCheckForAdmin(cipherText) {
+		fmt.Println("win")
+	} else {
+		fmt.Println("lose")
+	}
+	cipherText[16] ^= 0x70
+	cipherText[22] ^= 0x70
+	cipherText[27] ^= 0x70
+	if c16.DecryptAndCheckForAdmin(cipherText) {
+		fmt.Println("win")
+	} else {
+		fmt.Println("lose")
+	}
+	return nil
+}
+
 func set2() *cli.Command {
 	return &cli.Command{
 		Name: "set2",
@@ -155,6 +175,12 @@ func set2() *cli.Command {
 				Name:   "challenge14",
 				Usage:  "Break ECB based on harder encryption oracle",
 				Action: challenge14,
+			},
+			// challenge 15 is just to panic when validating PKCS#7 padding
+			{
+				Name:   "challenge16",
+				Usage:  "CBC bit-flipping attacks",
+				Action: challenge16,
 			},
 		},
 	}
