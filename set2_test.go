@@ -102,4 +102,13 @@ func TestTrimPkcs7Padding(t *testing.T) {
 		expected := []byte{1, 2}
 		td.Cmp(t, out, expected)
 	})
+	t.Run("should panic with invalid padding", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("The code did not panic")
+			}
+		}()
+		in := []byte{1, 2, 1, 2}
+		cryptopals.TrimPkcs7Padding(in)
+	})
 }

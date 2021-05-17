@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -13,7 +12,6 @@ func ParseKV(input string) map[string]string {
 	if len(input) == 0 {
 		return out
 	}
-	log.Print(input)
 	for _, field := range strings.Split(input, "&") {
 		pieces := strings.SplitN(field, "=", 2)
 		out[pieces[0]] = pieces[1]

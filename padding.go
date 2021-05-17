@@ -16,7 +16,13 @@ func Pkcs7pad(buf []byte, blockSize int) []byte {
 	return buf
 }
 
+// panics if padding is invalid
 func TrimPkcs7Padding(buf []byte) []byte {
 	bytesToTrim := buf[len(buf)-1]
+	for i := 1; i <= int(bytesToTrim); i++ {
+		if buf[len(buf)-i] != bytesToTrim {
+			panic("invalid padding")
+		}
+	}
 	return buf[:len(buf)-int(bytesToTrim)]
 }
