@@ -132,6 +132,51 @@ func (d *cbcDecrypter) CryptBlocks(dst, src []byte) {
 	}
 }
 
+//// Counter (CTR)
+
+type ctr struct {
+	b         cipher.Block
+	blockSize int
+	nonce     uint64
+}
+
+// encrypting == decrypting, so we don't need seperate
+// encrypter/decrypters
+func NewCTR(b cipher.Block, nonce uint64) cipher.Stream {
+	return (&ctr{
+		b:         b,
+		blockSize: b.BlockSize(),
+		nonce:     nonce,
+	})
+}
+
+func (d *ctr) XORKeyStream(dst, src []byte) {
+	if len(dst) < len(src) {
+		panic("Not enough room in dst")
+	}
+	var counter uint64
+	for len(src) >= d.blockSize {
+		buf := make([]byte, d.blockSize)
+		binary.LittleEndian.PutUint64(buf, d.nonce)
+		binary.LittleEndian.PutUint64(buf[8:], counter)
+		d.b.Encrypt(buf, buf)
+		XorBufs(buf, src[:d.blockSize])
+		copy(dst, buf)
+
+		counter++
+		dst = dst[d.blockSize:]
+		src = src[d.blockSize:]
+	}
+	if len(src) > 0 {
+		buf := make([]byte, d.blockSize)
+		binary.LittleEndian.PutUint64(buf, d.nonce)
+		binary.LittleEndian.PutUint64(buf[8:], counter)
+		d.b.Encrypt(buf, buf)
+		XorBufs(buf[:len(src)], src)
+		copy(dst, buf[:len(src)])
+	}
+}
+
 // Useful for spotting ECB in the wild
 // assumes block size is 16 bytes
 func DetectRepeatedBlock(data []byte) []byte {
