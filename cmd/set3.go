@@ -40,6 +40,27 @@ func challenge18(c *cli.Context) error {
 	return nil
 }
 
+func challenge19(c *cli.Context) error {
+	cipherTexts := cryptopals.Challenge19CipherTexts()
+
+	guessIndex := c.Int("guess-index")
+	optGuessPlaintext := c.String("guess-plaintext")
+	guessedCipherText := cipherTexts[guessIndex]
+	keyStream := []byte(optGuessPlaintext)
+	cryptopals.XorBufs(keyStream, guessedCipherText[:len(keyStream)])
+
+	for i, cipherText := range cipherTexts {
+		if len(cipherText) < len(keyStream) {
+			cryptopals.XorBufs(cipherText, keyStream[:len(cipherText)])
+		} else {
+			cryptopals.XorBufs(cipherText, keyStream)
+			cipherText = cipherText[:len(keyStream)]
+		}
+		fmt.Printf("%d: %#v\n", i, string(cipherText))
+	}
+	return nil
+}
+
 func set3() *cli.Command {
 	return &cli.Command{
 		Name: "set3",
@@ -65,6 +86,21 @@ func set3() *cli.Command {
 					},
 				},
 				Action: challenge18,
+			},
+			{
+				Name:  "challenge19",
+				Usage: "Fixed-nonce CTR",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "guess-plaintext",
+						Value: "",
+					},
+					&cli.IntFlag{
+						Name:  "guess-index",
+						Value: 0,
+					},
+				},
+				Action: challenge19,
 			},
 		},
 	}
