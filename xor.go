@@ -7,10 +7,7 @@ import (
 )
 
 func XorBufs(dst, src []byte) {
-	if len(src) > len(dst) {
-		panic("dst not long enough")
-	}
-	for i := 0; i < len(src); i += 1 {
+	for i := 0; i < len(src) && i < len(dst); i += 1 {
 		dst[i] ^= src[i]
 	}
 }
