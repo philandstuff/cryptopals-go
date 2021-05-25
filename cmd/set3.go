@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/philandstuff/cryptopals-go"
+	MT "github.com/philandstuff/cryptopals-go/mt"
 	"github.com/urfave/cli/v2"
 )
 
@@ -83,6 +84,15 @@ func challenge20(c *cli.Context) error {
 	return nil
 }
 
+func challenge21(c *cli.Context) error {
+	// seed := c.Uint("seed")
+	mt := MT.NewMTFromSlice([]uint32{0x123, 0x234, 0x345, 0x456})
+	for i := 0; i < 200; i++ {
+		fmt.Printf("%10d %10d %10d %10d %10d \n", mt.Next(), mt.Next(), mt.Next(), mt.Next(), mt.Next())
+	}
+	return nil
+}
+
 func set3() *cli.Command {
 	return &cli.Command{
 		Name: "set3",
@@ -128,6 +138,11 @@ func set3() *cli.Command {
 				Name:   "challenge20",
 				Usage:  "Fixed-nonce CTR, broken statistically",
 				Action: challenge20,
+			},
+			{
+				Name:   "challenge21",
+				Usage:  "MT19937 RNG",
+				Action: challenge21,
 			},
 		},
 	}
