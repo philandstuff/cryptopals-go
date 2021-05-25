@@ -3,9 +3,12 @@ package main
 import (
 	"crypto/aes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/philandstuff/cryptopals-go"
 	MT "github.com/philandstuff/cryptopals-go/mt"
@@ -85,12 +88,35 @@ func challenge20(c *cli.Context) error {
 }
 
 func challenge21(c *cli.Context) error {
-	// seed := c.Uint("seed")
 	mt := MT.NewMTFromSlice([]uint32{0x123, 0x234, 0x345, 0x456})
 	for i := 0; i < 200; i++ {
 		fmt.Printf("%10d %10d %10d %10d %10d \n", mt.Next(), mt.Next(), mt.Next(), mt.Next(), mt.Next())
 	}
 	return nil
+}
+
+func challenge22(c *cli.Context) error {
+	var value uint32
+	{
+		// initialise RNG at some point in the last 1000 seconds
+		offset := rand.Intn(1000) + 40
+		seed := time.Now().Unix() - int64(offset)
+		mt := MT.NewMTFromSeed(uint32(seed))
+		value = mt.Next()
+	}
+
+	// try to crack the seed, without the original mt in scope, just
+	// based on value
+	now := time.Now().Unix()
+	for i := 0; i < 2000; i++ {
+		seedGuess := uint32(now) - uint32(i)
+		mt := MT.NewMTFromSeed(seedGuess)
+		if mt.Next() == value {
+			fmt.Printf("Found seed %d, hooray!\n", seedGuess)
+			return nil
+		}
+	}
+	return errors.New("Couldn't find seed")
 }
 
 func set3() *cli.Command {
@@ -143,6 +169,11 @@ func set3() *cli.Command {
 				Name:   "challenge21",
 				Usage:  "MT19937 RNG",
 				Action: challenge21,
+			},
+			{
+				Name:   "challenge22",
+				Usage:  "Crack a MT19937 RNG seed",
+				Action: challenge22,
 			},
 		},
 	}
