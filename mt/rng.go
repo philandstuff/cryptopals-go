@@ -170,3 +170,13 @@ func (mt *MT) twist() {
 	}
 	mt.index = 0
 }
+
+// DuplicateMT is challenge 23.  It duplicates a generator only by
+// calling its Next() function.
+func DuplicateMT(mt *MT) *MT {
+	newMT := MT{}
+	for i := 0; i < n; i++ {
+		newMT.state[i] = Untemper(mt.Next())
+	}
+	return &newMT
+}

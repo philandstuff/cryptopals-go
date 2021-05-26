@@ -119,6 +119,23 @@ func challenge22(c *cli.Context) error {
 	return errors.New("Couldn't find seed")
 }
 
+func challenge23(c *cli.Context) error {
+	seed := rand.Uint32()
+	gen := MT.NewMTFromSeed(seed)
+	gen2 := MT.NewMTFromSeed(seed)
+	cloned := MT.DuplicateMT(gen2)
+	fmt.Println("cloned a generator, here are 20 test outputs:")
+	for i := 0; i < 20; i++ {
+		fmt.Printf("%10d %10d\n", gen.Next(), cloned.Next())
+	}
+	if *gen == *cloned {
+		fmt.Println("They are equal as structs, so have equal state")
+	} else {
+		fmt.Println("They are not equal as structs")
+	}
+	return nil
+}
+
 func set3() *cli.Command {
 	return &cli.Command{
 		Name: "set3",
@@ -174,6 +191,11 @@ func set3() *cli.Command {
 				Name:   "challenge22",
 				Usage:  "Crack a MT19937 RNG seed",
 				Action: challenge22,
+			},
+			{
+				Name:   "challenge23",
+				Usage:  "Clone a MT19937 RNG from outside",
+				Action: challenge23,
 			},
 		},
 	}
