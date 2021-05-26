@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"time"
@@ -21,11 +22,17 @@ func main() {
 			set1(),
 			set2(),
 			set3(),
+			set4(),
 			helpers(),
 		},
 	}
 
 	app.Run(os.Args)
+}
+
+func unimplemented(c *cli.Context) error {
+	log.Fatal("unimplemented")
+	return nil
 }
 
 func helpers() *cli.Command {

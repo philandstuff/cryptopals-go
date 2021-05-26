@@ -197,6 +197,11 @@ func set3() *cli.Command {
 				Usage:  "Clone a MT19937 RNG from outside",
 				Action: challenge23,
 			},
+			{
+				Name:   "challenge24",
+				Usage:  "Break the MT19937 stream cipher",
+				Action: unimplemented,
+			},
 		},
 	}
 }
