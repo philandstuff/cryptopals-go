@@ -3,6 +3,9 @@ package mt_test
 import (
 	"testing"
 
+	"github.com/leanovate/gopter"
+	"github.com/leanovate/gopter/gen"
+	"github.com/leanovate/gopter/prop"
 	MT "github.com/philandstuff/cryptopals-go/mt"
 )
 
@@ -220,4 +223,24 @@ func TestRngMatchesPublishedOutput(t *testing.T) {
 			t.Errorf("At index %d, expected %d to equal %d", i, next, expectedOutput[i])
 		}
 	}
+}
+
+func TestTemper(t *testing.T) {
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("Untemper reverses Temper", prop.ForAll(
+		func(x uint32) bool {
+			return MT.Untemper(MT.Temper(x)) == x
+		},
+		gen.UInt32(),
+	))
+
+	properties.Property("Temper reverses Untemper", prop.ForAll(
+		func(x uint32) bool {
+			return MT.Temper(MT.Untemper(x)) == x
+		},
+		gen.UInt32(),
+	))
+
+	properties.TestingRun(t)
 }

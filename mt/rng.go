@@ -77,14 +77,85 @@ func (mt *MT) Next() uint32 {
 		mt.twist()
 	}
 
-	y := mt.state[mt.index]
+	y := Temper(mt.state[mt.index])
+	mt.index++
+	return y
+}
+
+func Temper(x uint32) uint32 {
+	y := x
 	y = y ^ ((y >> u) & d)
 	y = y ^ ((y << s) & b)
 	y = y ^ ((y << t) & c)
 	y = y ^ (y >> l)
-
-	mt.index++
 	return y
+}
+
+// untemper working. First, the right shift operation:
+// 1010011011 x
+// 0010100110 x >> 2
+
+// 1000111101 x ^ x >> 2 (== z)
+// 0010001111 z >> 2
+// 0000100011 z >> 4
+// 0000001000 z >> 6
+// 0000000010 z >> 8
+// 1010011011 XOR all the above
+//
+// solve for x: x ^ (x >> 2) = z
+// for bit i:
+// x_i ^ x_{i+2} == z_i
+// for top 2 bits:
+// x_i = z_i
+// for next 2 bits:
+// x_i = z_{i+2} ^ z_i
+// for next 2 bits:
+// x_i = z_{i+4} ^ z_{i+2} ^ z_i
+
+// now, the left-shift and mask operation:
+//
+// solve for x: x ^ ((x << 2) & c) = z
+// for bit i:
+// x_i ^ (x_{i-2} & c_i) = z_i
+// for lowest 2 bits:
+// x_i = z_i
+// for general bits:
+// x_i = z_i ^ (x_{i-2} & c_i)
+// expanding x_{i-2}:
+// x_i = z_i ^ ((z_{i-2} ^ (x_{i-4} & c_{i-2})) & c_i)
+// this terminates if we ever get a c_i == 0
+// x = z ^ ((x << 2) & c)
+// x = z ^ (((z ^ ((x << 2) & c)) << 2) & c)
+// x = z ^ ((z << 2 ^ ((x << 4) & c << 2)) & c)
+//
+// 1010011011 x
+// 1001101100 x << 2
+// 0111110100 c
+// 0001100100 (x << 2) & c
+
+// 1011111111 x ^ ((x << 2) & c) (== z)
+
+// 1011111100 z << 2
+// 0011110100 (z << 2) & c
+// 1111110000 z << 4
+// 1111000000 z << 6
+// 1100000000 z << 8
+// 0000000000 z << 10
+// 1010011011 XOR all the above
+// 0110110100 c
+// 0010010000 & the above two rows
+// 1010111111 z
+// 1000101111 XOR the above two rows
+
+func Untemper(x uint32) uint32 {
+	x = x ^ x>>l // 2*l > w so one term is enough
+
+	x = x ^ ((x << t) & c) // c << t == 0 so one term is enough
+
+	x = x ^ (((x ^ (((x ^ (((x ^ ((x << s) & b)) << s) & b)) << s) & b)) << s) & b)
+
+	x = x ^ x>>u ^ x>>(2*u) // 3*u > w
+	return x
 }
 
 // generate the next n values of x_i
