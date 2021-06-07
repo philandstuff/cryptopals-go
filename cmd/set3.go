@@ -28,6 +28,12 @@ func challenge17(c *cli.Context) error {
 	return nil
 }
 
+func challenge17a(c *cli.Context) error {
+	c17 := cryptopals.NewCompressionOracle()
+	cryptopals.CompressionOracleAttack(c17)
+	return nil
+}
+
 func challenge18(c *cli.Context) error {
 	key := []byte(c.String("key"))
 	if len(key) != 16 {
@@ -144,6 +150,11 @@ func set3() *cli.Command {
 				Name:   "challenge17",
 				Usage:  "padding oracle",
 				Action: challenge17,
+			},
+			{
+				Name:   "challenge17a",
+				Usage:  "compression oracle",
+				Action: challenge17a,
 			},
 			{
 				Name:  "challenge18",
